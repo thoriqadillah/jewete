@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  mysql-dev:
+    image: mysql:latest
+    ports:
+      - '3303:3306'
+    expose:
+      - '3303'
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: jewete
+    volumes:
+      - mysql-dev:/var/lib/mysql
+
+volumes:
+  mysql-dev:
