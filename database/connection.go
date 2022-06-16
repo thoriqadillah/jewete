@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"jewete/entities"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -11,12 +10,12 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var Instance *gorm.DB
+var instance *gorm.DB
 
-func Connect() {
+func GetInstance() *gorm.DB {
 	errEnv := godotenv.Load()
 	if errEnv != nil {
-		panic(errEnv.Error())
+		panic("env error : " + errEnv.Error())
 	}
 
 	dbUser := os.Getenv("DB_USER")
@@ -32,13 +31,13 @@ func Connect() {
 	if err != nil {
 		panic("Error connecting database : " + err.Error())
 	}
-	db.AutoMigrate(&entities.User{})
 
-	Instance = db
+	instance = db
+	return db
 }
 
 func Close() {
-	dbCon, err := Instance.DB()
+	dbCon, err := instance.DB()
 	if err != nil {
 		panic("Error closing database : " + err.Error())
 	}

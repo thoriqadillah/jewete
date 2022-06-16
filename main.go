@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	database.Connect()
+	database.GetInstance()
 	app := fiber.New()
 
 	routes.Setup(app)
