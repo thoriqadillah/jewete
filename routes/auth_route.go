@@ -9,6 +9,8 @@ import (
 func authRoute(auth fiber.Router) {
 	auth.Post("/register", controllers.Register)
 	auth.Post("/login", controllers.Login)
+	auth.Get("/user", controllers.User)
+
 	// auth.Post("/refresh", controllers.RefreshToken)
 	// auth.Post("/logout", controllers.Logout)
 

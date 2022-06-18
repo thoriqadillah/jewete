@@ -58,3 +58,16 @@ func Login(c *fiber.Ctx) error {
 
 	return response.SuccessWithCookie(&jwt)
 }
+
+func User(c *fiber.Ctx) error {
+	cookie := c.Cookies("jwt")
+	response := handler.NewResponse(c)
+
+	claims, err := services.ParseJwt(cookie)
+	if err != nil {
+		return response.Unauthorized()
+	}
+
+	user := services.GetUserById(&claims.Issuer)
+	return response.Success(user)
+}

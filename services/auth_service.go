@@ -33,6 +33,15 @@ func GetUser(user *entities.User) (*entities.User, error) {
 	return nil, gorm.ErrRecordNotFound
 }
 
+func GetUserById(id *string) *entities.User {
+	record, _ := authRepository.GetById(id)
+	if record.ID == 0 {
+		return nil
+	}
+
+	return record
+}
+
 func isCorrectPassword(hashed string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
 	return err == nil

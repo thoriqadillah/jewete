@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	Create(model interface{}) error
 	Get(model interface{}) (*entities.User, error)
+	GetById(id *string) (*entities.User, error)
 }
 
 type authRepository struct {
@@ -48,6 +49,20 @@ func (r *authRepository) Get(model interface{}) (*entities.User, error) {
 	user := model.(*entities.User)
 
 	res, err := r.db.Model(&entities.User{}).Where("username = ?", user.Username).Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	var record entities.User
+	for res.Next() {
+		r.db.ScanRows(res, &record)
+	}
+
+	return &record, nil
+}
+
+func (r *authRepository) GetById(id *string) (*entities.User, error) {
+	res, err := r.db.Model(&entities.User{}).Where("id = ?", id).Rows()
 	if err != nil {
 		return nil, err
 	}
