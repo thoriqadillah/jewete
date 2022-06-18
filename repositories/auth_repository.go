@@ -45,5 +45,17 @@ func (r *authRepository) Create(model interface{}) error {
 }
 
 func (r *authRepository) Get(model interface{}) (*entities.User, error) {
-	return nil, nil
+	user := model.(*entities.User)
+
+	res, err := r.db.Model(&entities.User{}).Where("username = ?", user.Username).Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	var record entities.User
+	for res.Next() {
+		r.db.ScanRows(res, &record)
+	}
+
+	return &record, nil
 }
