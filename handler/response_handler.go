@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"jewete/entities"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -41,16 +39,6 @@ func (r *Reponse) Success(data interface{}) error {
 	})
 }
 
-func (r *Reponse) SuccessWithCookie(data interface{}) error {
-	claim := data.(*entities.Claim)
-
-	r.Ctx.Cookie(claim.Cookie)
-	return r.Ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"status": "success",
-		"data":   claim.User,
-	})
-}
-
 func (r *Reponse) NotFound() error {
 	return r.Ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 		"message": "data not found",
@@ -66,6 +54,6 @@ func (r *Reponse) ServerError(err error) error {
 
 func (r *Reponse) Unauthorized() error {
 	return r.Ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-		"message": "unauthenticated",
+		"message": "unauthorized",
 	})
 }

@@ -1,8 +1,10 @@
 package entities
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/golang-jwt/jwt"
+)
 
-type Claim struct {
-	User   *User
-	Cookie *fiber.Cookie
+type JWTClaim struct {
+	User *User
+	*jwt.StandardClaims
 }

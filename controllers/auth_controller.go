@@ -5,8 +5,11 @@ import (
 	"jewete/entities"
 	"jewete/handler"
 	"jewete/services"
+	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +42,18 @@ func Login(c *fiber.Ctx) error {
 		return response.NotFound()
 	}
 
-	token, expiredTime, err := services.NewToken(user.ID)
+	expirationTime := time.Now().Add(time.Minute * 5)
+	claims := entities.JWTClaim{
+		User: user,
+		StandardClaims: &jwt.StandardClaims{
+			Audience:  string(c.Request().Header.Referer()),
+			ExpiresAt: expirationTime.Unix(),
+			IssuedAt:  time.Now().UTC().Unix(),
+			Issuer:    strconv.Itoa(int(user.ID)),
+		},
+	}
+
+	token, err := services.NewToken(&claims)
 	if err != nil {
 		return response.ServerError(err)
 	}
@@ -47,23 +61,19 @@ func Login(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
 		Name:     "jwt",
 		Value:    *token,
-		Expires:  expiredTime,
+		Expires:  expirationTime,
 		HTTPOnly: true,
 	}
 
-	jwt := entities.Claim{
-		User:   user,
-		Cookie: &cookie,
-	}
-
-	return response.SuccessWithCookie(&jwt)
+	c.Cookie(&cookie)
+	return response.Success(token)
 }
 
 func User(c *fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
+	token := c.Cookies("jwt")
 	response := handler.NewResponse(c)
 
-	claims, err := services.ParseJwt(cookie)
+	claims, err := services.ParseJwt(&token)
 	if err != nil {
 		return response.Unauthorized()
 	}
@@ -74,8 +84,12 @@ func User(c *fiber.Ctx) error {
 
 func Logout(c *fiber.Ctx) error {
 	response := handler.NewResponse(c)
-	cookie := services.DeleteCookie()
-	c.Cookie(cookie)
+	cookie := fiber.Cookie{
+		Name:    "jwt",
+		Value:   "",
+		Expires: time.Now().Add(-time.Hour),
+	}
 
+	c.Cookie(&cookie)
 	return response.Success(nil)
 }

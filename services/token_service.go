@@ -1,33 +1,28 @@
 package services
 
 import (
+	"jewete/entities"
 	"os"
-	"strconv"
-	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 )
 
-func NewToken(userId uint) (*string, time.Time, error) {
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    strconv.Itoa(int(userId)),
-		ExpiresAt: oneDay().Unix(),
-	})
+func NewToken(claims *entities.JWTClaim) (*string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	key := os.Getenv("JWT_KEY")
-	token, err := claims.SignedString([]byte(key))
+	tokenString, err := token.SignedString([]byte(key))
 	if err != nil {
-		return nil, time.Time{}, err
+		return nil, err
 	}
 
-	return &token, oneDay(), nil
+	return &tokenString, nil
 }
 
-func ParseJwt(cookie string) (*jwt.StandardClaims, error) {
+func ParseJwt(cookie *string) (*jwt.StandardClaims, error) {
 	key := os.Getenv("JWT_KEY")
 
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(*cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(key), nil
 	})
 
@@ -36,20 +31,5 @@ func ParseJwt(cookie string) (*jwt.StandardClaims, error) {
 	}
 
 	claims := token.Claims.(*jwt.StandardClaims)
-
 	return claims, nil
-}
-
-func oneDay() time.Time {
-	return time.Now().Add(time.Hour * 24)
-}
-
-func DeleteCookie() *fiber.Cookie {
-	cookie := fiber.Cookie{
-		Name:    "jwt",
-		Value:   "",
-		Expires: time.Now().Add(-time.Hour),
-	}
-
-	return &cookie
 }
