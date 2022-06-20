@@ -29,6 +29,12 @@ func (r *Reponse) Created(data interface{}) error {
 }
 
 func (r *Reponse) Success(data interface{}) error {
+	if data == nil {
+		return r.Ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+			"status": "success",
+		})
+	}
+
 	return r.Ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "success",
 		"data":   data,

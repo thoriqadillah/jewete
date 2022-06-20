@@ -12,6 +12,6 @@ func authRoute(auth fiber.Router) {
 	auth.Get("/user", controllers.User)
 
 	// auth.Post("/refresh", controllers.RefreshToken)
-	// auth.Post("/logout", controllers.Logout)
+	auth.Post("/logout", controllers.Logout)
 
 }

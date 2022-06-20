@@ -71,3 +71,11 @@ func User(c *fiber.Ctx) error {
 	user := services.GetUserById(&claims.Issuer)
 	return response.Success(user)
 }
+
+func Logout(c *fiber.Ctx) error {
+	response := handler.NewResponse(c)
+	cookie := services.DeleteCookie()
+	c.Cookie(cookie)
+
+	return response.Success(nil)
+}

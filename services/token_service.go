@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -41,4 +42,14 @@ func ParseJwt(cookie string) (*jwt.StandardClaims, error) {
 
 func oneDay() time.Time {
 	return time.Now().Add(time.Hour * 24)
+}
+
+func DeleteCookie() *fiber.Cookie {
+	cookie := fiber.Cookie{
+		Name:    "jwt",
+		Value:   "",
+		Expires: time.Now().Add(-time.Hour),
+	}
+
+	return &cookie
 }
